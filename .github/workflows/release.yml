@@ -30,7 +30,6 @@ jobs:
         run: |
           mkdir -p artifact
           cp target/release/${{ github.event.repository.name }}* artifact/
-          cp -r ArkCore artifact/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
