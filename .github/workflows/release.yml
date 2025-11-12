@@ -1,0 +1,39 @@
+name: Build Rust Project
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build in release mode
+        run: cargo build --release
+
+      - name: Prepare artifact contents
+        run: |
+          mkdir -p artifact
+          cp target/release/${{ github.event.repository.name }}* artifact/
+          cp -r ArkCore artifact/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-build
+          path: artifact/
