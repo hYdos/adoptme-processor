@@ -45,7 +45,9 @@ pub struct EldoradoListing {
 }
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args: Vec<String> = env::args().collect();
+    let mut args: Vec<String> = env::args().collect();
+    args.push("C:/Users/hydos/Downloads/December 7/listing_settings.json".to_string());
+    args.push("C:/Users/hydos/Downloads/December 7/nobool_account_data.csv".to_string());
 
     if args.len() < 2 {
         println!("Usage: adoptme-processor <path-to-listing-settings> <path-to-account-data>");
@@ -218,7 +220,7 @@ fn upload_offer_image(
         .file_name(file_name.to_string())
         .mime_str("application/octet-stream")?;
 
-    let form = Form::new().part("file", part); // Eldorado file upload uses "file" field; adjust if API differs.
+    let form = Form::new().part("image", part);
 
     let response = client
         .post(format!("{api_base}{image_upload_path}"))
@@ -307,10 +309,15 @@ fn upload_offers_to_eldorado(
     let template = fs::read_to_string(template_path)?;
     let template_json: Value = serde_json::from_str(&template)?;
 
-    let header_name = HeaderName::from_bytes(auth_header.as_bytes())?;
-    let header_value = HeaderValue::from_str(&format!("{auth_scheme} {api_key}"))?;
     let mut headers = HeaderMap::new();
-    headers.insert(header_name, header_value);
+    headers.insert("Nsure-Device-Id", HeaderValue::from_str("733386ba-8001-491c-80a0-493e75b4d7c4")?);
+    headers.insert("User-Agent", HeaderValue::from_str("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0")?);
+    headers.insert("Referer", HeaderValue::from_str("https://www.eldorado.gg/swagger/seller/index.html")?);
+    headers.insert("Host", HeaderValue::from_str("www.eldorado.gg")?);
+    headers.insert("X-Correlation-Id", HeaderValue::from_str("e4b45980-f76e-45ed-a777-fe9fafb0e8f0")?);
+    headers.insert("X-Device-Id", HeaderValue::from_str("870b6929-666a-4783-940b-3d3454c986a3")?);
+    headers.insert("X-GA-SessionId", HeaderValue::from_str("Unknown")?);
+    headers.insert("X-XSRF-Token", HeaderValue::from_str("e4534f40e53b2ef39e99ef241dac5d1078ee15804245e3114df6b877af2c103e")?);
 
     if let Ok(cookie) = env::var("ELDORADO_COOKIE") {
         headers.insert(
